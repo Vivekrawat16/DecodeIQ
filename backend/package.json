@@ -4,9 +4,13 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/server.js",
+    "dev": "node src/server.js",
     "start":"node src/server.js"
   },
+  "engines": {
+  "node": ">=22.0.0"
+},
+
   
   "dependencies": {
     "dotenv": "^17.2.3",
