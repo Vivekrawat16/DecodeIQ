@@ -1,29 +1,28 @@
 import express from "express";
-import {ENV} from "./lib/env.js";
+import { ENV } from "./lib/env.js";
 import path from "path";
+import { fileURLToPath } from "url";
 
+const app = express();
 
-const app= express()
+// ✅ ESM-safe way to get __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const __dirname=path.resolve();
+// ✅ API route example
+app.get("/books", (req, res) => {
+  res.status(200).json({ msg: "success from books" });
+});
 
+// ✅ Serve frontend in production
+if (ENV.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../frontend/dist");
+  app.use(express.static(frontendPath));
 
-
-
-app.get("/books",(req,res)=>{
-    res.status(200).json({msg:"success from books"})
-})
-
-//make app ready for deployment
-
-if(ENV.NODE_ENV ==="production"){
-    app.use(express.static(path.join(__dirname,"../frontend/dist")))
-    
-    app.get("/{*any}",(req,res) => {
-        res.sendFile(path.join(__dirname,"../frontend","dist","index.html"));
-    });
+  // ✅ Handle all other routes by sending React index.html
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
 }
 
-
-
-app.listen(ENV.PORT, () => console.log("server is running good"))
+app.listen(ENV.PORT, () => console.log(`✅ Server is running on port ${ENV.PORT}`));
