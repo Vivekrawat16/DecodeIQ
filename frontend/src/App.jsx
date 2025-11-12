@@ -8,10 +8,23 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-   <h1>Welcome to the app</h1>
-   <SignInButton mode='modal'/>
-    </>
+    <div className="App">
+      <h1>Welcome to the App</h1>
+
+      {/* 👇 Only visible if user is signed OUT */}
+      <SignedOut>
+        <p>Please sign in to continue.</p>
+        <SignInButton mode="modal">
+          <button className="btn">Sign In</button>
+        </SignInButton>
+      </SignedOut>
+
+      {/* 👇 Only visible if user is signed IN */}
+      <SignedIn>
+        <h2>You are logged in 🎉</h2>
+        <UserButton afterSignOutUrl="/" />
+      </SignedIn>
+    </div>
   )
 }
 
