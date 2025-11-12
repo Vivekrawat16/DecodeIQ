@@ -26,7 +26,10 @@ const syncUser = inngest.createFunction(
       id:newUser.clerkId.toString(),
       name:newUser.name,
       image:newUser.profileImage,
-    })
+    });
+
+
+    // send a welcome email here later
 
     // ❌ Removed upsertStreamUser() – stream integration not present
   }

@@ -8,6 +8,7 @@ import { serve } from "inngest/express";
 import { clerkMiddleware } from '@clerk/express';
 import { inngest, functions } from "./lib/inngest.js"; // ✅ Correct single import
 import chatRoutes from "./routes/chatRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js"
 const app = express();
 
 // ✅ ESM-safe way to get __dirname
@@ -21,7 +22,9 @@ app.use(clerkMiddleware()); //this add auth fieldto request boject
 
 // ✅ Inngest API route (fixed leading slash)
 app.use("/api/inngest", serve({ client: inngest, functions }));
-app.use("/api/chat",chatRoutes)
+app.use("/api/chat",chatRoutes);
+app.use("/api/sessions",sessionRoutes);
+;
 // ✅ API route example
 
 
