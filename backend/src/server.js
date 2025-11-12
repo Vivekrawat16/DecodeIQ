@@ -31,7 +31,7 @@ if (ENV.NODE_ENV === "production") {
   app.use(express.static(frontendPath));
 
   // ✅ Handle all other routes by sending React index.html
-  app.get("*", (req, res) => {
+  app.get("/*", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
