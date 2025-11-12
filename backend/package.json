@@ -4,13 +4,14 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/server.js",
+    "dev": "node --watch src/server.js",
     "start": "node src/server.js"
   },
   "engines": {
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@clerk/express": "^1.7.41",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
