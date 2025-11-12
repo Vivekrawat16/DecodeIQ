@@ -14,10 +14,23 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-   <h1>Welcome to the app</h1>
-   <SignInButton mode='modal'/>
-    </>
+     <div className="App">
+      <h1>Welcome to the App</h1>
+
+      {/* 👇 Shown when user is signed out */}
+      <SignedOut>
+        <p>Please sign in to continue.</p>
+        <SignInButton mode="modal">
+          <button>Sign In</button>
+        </SignInButton>
+      </SignedOut>
+
+      {/* 👇 Shown when user is signed in */}
+      <SignedIn>
+        <h2>You are logged in 🎉</h2>
+        <UserButton afterSignOutUrl="/" />
+      </SignedIn>
+    </div>
   )
 }
 
