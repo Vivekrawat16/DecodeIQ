@@ -2,7 +2,6 @@ import { Inngest } from "inngest";
 import { connectDB } from "./db.js";
 import User from "../models/User.js";
 
-
 export const inngest = new Inngest({ id: "talent-iq" });
 
 const syncUser = inngest.createFunction(
@@ -16,17 +15,13 @@ const syncUser = inngest.createFunction(
     const newUser = {
       clerkId: id,
       email: email_addresses[0]?.email_address,
-      name: `${first_name || ""} ${last_name || ""}`,
+      name: `${first_name || ""} ${last_name || ""}`.trim(),
       profileImage: image_url,
     };
 
     await User.create(newUser);
 
-    await upsertStreamUser({
-      id: newUser.clerkId.toString(),
-      name: newUser.name,
-      image: newUser.profileImage,
-    });
+    // ❌ Removed upsertStreamUser() – stream integration not present
   }
 );
 
@@ -39,7 +34,7 @@ const deleteUserFromDB = inngest.createFunction(
     const { id } = event.data;
     await User.deleteOne({ clerkId: id });
 
-    await deleteStreamUser(id.toString());
+    // ❌ Removed deleteStreamUser() – stream integration not present
   }
 );
 
