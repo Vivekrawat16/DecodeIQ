@@ -3,12 +3,22 @@ import { ENV } from "./lib/env.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./lib/db.js";
+import cors from "cors";
+import {serve} from "inngest/express"
+import { inngest } from "./lib/inngest.js";
 
 const app = express();
 
 // ✅ ESM-safe way to get __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+//middleware
+
+app.use(express.json())
+app.use(cors({origin:ENV.CLIENT_URL,credential:true}))
+
+app.use("api/inngest",serve({client:inngest,functions}))
 
 // ✅ API route example
 app.get("/books", (req, res) => {
