@@ -1,4 +1,3 @@
-
 # 🚀 TalentIQ – Real-Time Coding Interview & Collaboration Platform
 
 A full-stack platform for **pair programming**, **live video interviews**, and **collaborative coding** — built with **React, Tailwind, Node.js, Express, MongoDB, Clerk Auth, and Stream Video/Chat SDK**.
@@ -151,17 +150,3 @@ npm run dev
 
 Pull requests are welcome!
 If you're enhancing UI/UX or adding features, open an issue first to discuss direction.
-
----
-
-## 📄 License
-
-MIT License
-
----
-
-If you want, I can also add:
-✅ Badges (Vercel/Railway build status)
-✅ GIF demo preview
-✅ Screenshots section
-Just tell me!
