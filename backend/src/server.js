@@ -1,4 +1,5 @@
 import express from "express";
+import 'dotenv/config'; // FIRST
 import path from "path";
 import cors from "cors";
 import { serve } from "inngest/express";

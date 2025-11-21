@@ -3,7 +3,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useState } from "react";
 import { useActiveSessions, useCreateSession, useMyRecentSessions } from "../hooks/useSessions";
 
-import Navbar from "../components/Navbar";
+
 import WelcomeSection from "../components/WelcomeSection";
 import StatsCards from "../components/StatsCards";
 import ActiveSessions from "../components/ActiveSessions";
@@ -50,7 +50,7 @@ function DashboardPage() {
   return (
     <>
       <div className="min-h-screen bg-base-300">
-        <Navbar />
+
         <WelcomeSection onCreateSession={() => setShowCreateModal(true)} />
 
         {/* Grid layout */}

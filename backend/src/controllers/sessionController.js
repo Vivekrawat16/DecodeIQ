@@ -1,4 +1,4 @@
-import { chatClient, streamClient } from "../lib/stream.js";
+import { chatClient, streamClient, upsertStreamUser } from "../lib/stream.js";
 import Session from "../models/Session.js";
 
 export async function createSession(req, res) {
@@ -13,6 +13,13 @@ export async function createSession(req, res) {
 
     // generate a unique call id for stream video
     const callId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    // upsert user to stream to ensure they exist (fixes local dev issues)
+    await upsertStreamUser({
+      id: clerkId,
+      name: req.user.name,
+      image: req.user.profileImage,
+    });
 
     // create session in db
     const session = await Session.create({ problem, difficulty, host: userId, callId });
@@ -115,6 +122,13 @@ export async function joinSession(req, res) {
 
     session.participant = userId;
     await session.save();
+
+    // upsert user to stream to ensure they exist
+    await upsertStreamUser({
+      id: clerkId,
+      name: req.user.name,
+      image: req.user.profileImage,
+    });
 
     const channel = chatClient.channel("messaging", session.callId);
     await channel.addMembers([clerkId]);
