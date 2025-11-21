@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router";
 import { useEndSession, useJoinSession, useSessionById } from "../hooks/useSessions";
 import { PROBLEMS } from "../data/problems";
 import { executeCode } from "../lib/piston";
-import Navbar from "../components/Navbar";
+
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { getDifficultyBadgeClass } from "../lib/utils";
 import { Loader2Icon, LogOutIcon, PhoneOffIcon } from "lucide-react";
@@ -97,7 +97,7 @@ function SessionPage() {
 
   return (
     <div className="h-screen bg-base-100 flex flex-col">
-      <Navbar />
+
 
       <div className="flex-1">
         <PanelGroup direction="horizontal">
