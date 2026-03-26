@@ -18,7 +18,7 @@ export const SocketProvider = ({ children }) => {
         // Only connect when auth is resolved AND a user exists
         if (isLoading || !user) return;
 
-        const newSocket = io("http://localhost:3000", {
+        const newSocket = io(import.meta.env.VITE_API_URL || window.location.origin, {
             auth: {
                 user: {
                     id: user._id,
