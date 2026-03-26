@@ -1,45 +1,21 @@
-import { chatClient, streamClient, upsertStreamUser } from "../lib/stream.js";
 import Session from "../models/Session.js";
 
 export async function createSession(req, res) {
   try {
     const { problem, difficulty } = req.body;
     const userId = req.user._id;
-    const clerkId = req.user.clerkId;
 
     if (!problem || !difficulty) {
       return res.status(400).json({ message: "Problem and difficulty are required" });
     }
 
-    // generate a unique call id for stream video
-    const callId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-    // upsert user to stream to ensure they exist (fixes local dev issues)
-    await upsertStreamUser({
-      id: clerkId,
-      name: req.user.name,
-      image: req.user.profileImage,
-    });
+    // generate a unique invite code instead of Stream call ID
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     // create session in db
-    const session = await Session.create({ problem, difficulty, host: userId, callId });
+    const session = await Session.create({ problem, difficulty, host: userId, callId: inviteCode });
 
-    // create stream video call
-    await streamClient.video.call("default", callId).getOrCreate({
-      data: {
-        created_by_id: clerkId,
-        custom: { problem, difficulty, sessionId: session._id.toString() },
-      },
-    });
 
-    // chat messaging
-    const channel = chatClient.channel("messaging", callId, {
-      name: `${problem} Session`,
-      created_by_id: clerkId,
-      members: [clerkId],
-    });
-
-    await channel.create();
 
     res.status(201).json({ session });
   } catch (error) {
@@ -51,8 +27,8 @@ export async function createSession(req, res) {
 export async function getActiveSessions(_, res) {
   try {
     const sessions = await Session.find({ status: "active" })
-      .populate("host", "name profileImage email clerkId")
-      .populate("participant", "name profileImage email clerkId")
+      .populate("host", "name profileImage email")
+      .populate("participant", "name profileImage email")
       .sort({ createdAt: -1 })
       .limit(20);
 
@@ -82,13 +58,31 @@ export async function getMyRecentSessions(req, res) {
   }
 }
 
+export async function getSessionByCode(req, res) {
+  try {
+    const { code } = req.params;
+    const session = await Session.findOne({ callId: code.toUpperCase(), status: "active" })
+      .populate("host", "name profileImage email")
+      .populate("participant", "name profileImage email");
+
+    if (!session) {
+      return res.status(404).json({ message: "No active session found for that code" });
+    }
+
+    res.status(200).json({ session });
+  } catch (error) {
+    console.log("Error in getSessionByCode controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 export async function getSessionById(req, res) {
   try {
     const { id } = req.params;
 
     const session = await Session.findById(id)
-      .populate("host", "name email profileImage clerkId")
-      .populate("participant", "name email profileImage clerkId");
+      .populate("host", "name email profileImage")
+      .populate("participant", "name email profileImage");
 
     if (!session) return res.status(404).json({ message: "Session not found" });
 
@@ -103,7 +97,6 @@ export async function joinSession(req, res) {
   try {
     const { id } = req.params;
     const userId = req.user._id;
-    const clerkId = req.user.clerkId;
 
     const session = await Session.findById(id);
 
@@ -122,16 +115,6 @@ export async function joinSession(req, res) {
 
     session.participant = userId;
     await session.save();
-
-    // upsert user to stream to ensure they exist
-    await upsertStreamUser({
-      id: clerkId,
-      name: req.user.name,
-      image: req.user.profileImage,
-    });
-
-    const channel = chatClient.channel("messaging", session.callId);
-    await channel.addMembers([clerkId]);
 
     res.status(200).json({ session });
   } catch (error) {
@@ -154,18 +137,7 @@ export async function endSession(req, res) {
       return res.status(403).json({ message: "Only the host can end the session" });
     }
 
-    // check if session is already completed
-    if (session.status === "completed") {
-      return res.status(400).json({ message: "Session is already completed" });
-    }
-
-    // delete stream video call
-    const call = streamClient.video.call("default", session.callId);
-    await call.delete({ hard: true });
-
-    // delete stream chat channel
-    const channel = chatClient.channel("messaging", session.callId);
-    await channel.delete();
+    // Session is ended purely in DB. WebRTC signals will be disconnected on client-side.
 
     session.status = "completed";
     await session.save();

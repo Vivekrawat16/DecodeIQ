@@ -7,15 +7,18 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
-    GripVertical
+    GripVertical,
+    Users
 } from "lucide-react";
-import { UserButton } from "@clerk/clerk-react";
+import { useAuthContext } from "../context/AuthContext";
+import toast from "react-hot-toast";
 import ThemeController from "./ThemeController";
 import { useState, useEffect, useRef } from "react";
 
 function Sidebar() {
     const location = useLocation();
     const isActive = (path) => location.pathname === path;
+    const { authUser, setAuthUser } = useAuthContext();
 
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [width, setWidth] = useState(256); // Default 64 * 4 = 256px
@@ -25,6 +28,7 @@ function Sidebar() {
     const navItems = [
         { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { path: "/problems", icon: BookOpen, label: "Problems" },
+        { path: "/match", icon: Users, label: "Pair Programming" },
         { path: "/mock-oa", icon: Terminal, label: "Mock OA" },
     ];
 
@@ -61,6 +65,21 @@ function Sidebar() {
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
         setWidth(isCollapsed ? 256 : 80); // Reset to default or shrink
+    };
+
+    const handleLogout = async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+            if (res.ok) {
+                setAuthUser(null);
+                toast.success("Logged out successfully");
+            }
+        } catch (error) {
+            toast.error("Logout failed");
+        }
     };
 
     return (
@@ -120,20 +139,12 @@ function Sidebar() {
                 </div>
 
                 <div className={`flex items-center gap-3 p-2 rounded-lg bg-base-200/50 border border-[var(--border-color)] ${isCollapsed ? 'justify-center' : ''}`}>
-                    <UserButton
-                        appearance={{
-                            elements: {
-                                avatarBox: "size-9 border border-base-content/20 hover:border-primary/50 transition-colors",
-                                userButtonPopoverCard: "shadow-xl border border-base-content/10 bg-[#09090b]",
-                                userButtonPopoverActionButton: "hover:bg-base-content/5 text-base-content/80",
-                                userButtonPopoverActionButtonText: "text-sm font-medium",
-                                userButtonPopoverFooter: "hidden"
-                            }
-                        }}
-                    />
+                    <button onClick={handleLogout} className="p-2 rounded-full hover:bg-base-content/10 transition-colors text-red-500" title="Logout">
+                        <LogOut className="size-5" />
+                    </button>
                     {!isCollapsed && (
                         <div className="flex flex-col whitespace-nowrap overflow-hidden">
-                            <span className="text-xs font-medium text-base-content truncate">My Account</span>
+                            <span className="text-xs font-medium text-base-content truncate">{authUser?.name || "My Account"}</span>
                             <span className="text-[10px] text-base-content/50 truncate">Manage Profile</span>
                         </div>
                     )}

@@ -1,4 +1,4 @@
-import { SignInButton } from "@clerk/clerk-react";
+
 import { Code2, Terminal, Zap, ChevronRight, CheckCircle2, Users, Trophy, Clock, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -21,14 +21,14 @@ function HomePage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <SignInButton mode="modal">
+            <Link to="/login">
               <button className="text-sm font-medium hover:text-primary transition-colors">Sign In</button>
-            </SignInButton>
-            <SignInButton mode="modal">
+            </Link>
+            <Link to="/signup">
               <button className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
                 Get Started
               </button>
-            </SignInButton>
+            </Link>
           </div>
         </div>
       </nav>
@@ -54,12 +54,12 @@ function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 animate-fade-in-up delay-300">
-            <SignInButton mode="modal">
+            <Link to="/login">
               <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary text-white font-semibold text-lg hover:bg-primary/90 transition-all hover:scale-105 shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
                 Start Coding Free
                 <ChevronRight className="size-5" />
               </button>
-            </SignInButton>
+            </Link>
             <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-base-100 border border-base-content/10 font-semibold text-lg hover:bg-base-200 transition-all flex items-center justify-center gap-2">
               <Terminal className="size-5 text-base-content/70" />
               Live Demo
@@ -205,12 +205,12 @@ function HomePage() {
             Join the fastest growing community of developers preparing for technical interviews.
           </p>
 
-          <SignInButton mode="modal">
+          <Link to="/login">
             <button className="px-10 py-5 rounded-2xl bg-primary text-white font-bold text-xl hover:bg-primary/90 transition-all hover:scale-105 shadow-2xl shadow-primary/30 inline-flex items-center gap-3">
               Get Started for Free
               <ArrowRight className="size-6" />
             </button>
-          </SignInButton>
+          </Link>
         </div>
       </div>
 

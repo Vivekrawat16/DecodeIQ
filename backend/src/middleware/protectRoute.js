@@ -1,29 +1,35 @@
-import { requireAuth } from "@clerk/express";
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { ENV } from "../lib/env.js";
 
-export const protectRoute = [
-  requireAuth(),
-  async (req, res, next) => {
-    try {
-      const clerkId = req.auth.userId;
+export const protectRoute = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt;
 
-      if (!clerkId) {
-        return res.status(401).json({ msg: "Unauthorized - invalid token" });
-      }
-
-      // find user in DB by clerkId
-      const user = await User.findOne({ clerkId });
-
-      if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-      }
-
-      // attach user to req
-      req.user = user;
-      next();
-    } catch (error) {
-      console.error("Error in protectRoute middleware:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+    if (!token) {
+      return res.status(401).json({ msg: "Unauthorized - No Token Provided" });
     }
-  },
-];
+
+    const decoded = jwt.verify(token, ENV.JWT_SECRET || "fallback_secret");
+
+    if (!decoded) {
+      return res.status(401).json({ msg: "Unauthorized - Invalid Token" });
+    }
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    // JWT errors (invalid signature, expired) → 401, not 500
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      return res.status(401).json({ msg: "Unauthorized - Invalid or expired token" });
+    }
+    console.error("Error in protectRoute middleware:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
