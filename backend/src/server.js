@@ -1,5 +1,6 @@
 import express from "express";
 import 'dotenv/config'; // FIRST
+import { fileURLToPath } from "url";
 import path from "path";
 import cors from "cors";
 import { serve } from "inngest/express";
@@ -18,7 +19,8 @@ import { setupSocketServer } from "./socket/server.js";
 const app = express();
 const server = http.createServer(app);
 
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // middleware
 app.use(express.json());
