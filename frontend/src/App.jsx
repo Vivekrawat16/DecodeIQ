@@ -9,6 +9,7 @@ import SessionPage from "./pages/SessionPage";
 import MockOAPage from "./pages/MockOAPage";
 import Sidebar from "./components/Sidebar";
 import AuthPage from "./pages/AuthPage";
+import ProfilePage from "./pages/ProfilePage";
 import { useAuthContext } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
 import MatchPage from "./pages/MatchPage";
@@ -51,6 +52,7 @@ function App() {
             <Route path="/problem/:id" element={authUser ? <ProblemPage /> : <Navigate to={"/"} />} />
             <Route path="/session/:id" element={authUser ? <SessionPage /> : <Navigate to={"/"} />} />
             <Route path="/mock-oa" element={authUser ? <MockOAPage /> : <Navigate to={"/"} />} />
+            <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to={"/"} />} />
           </Routes>
         </main>
 

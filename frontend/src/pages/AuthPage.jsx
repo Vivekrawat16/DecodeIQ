@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { GoogleLogin } from '@react-oauth/google';
+
 
 function AuthPage() {
   const { setAuthUser } = useAuthContext();
@@ -43,6 +45,30 @@ function AuthPage() {
       toast.error("Something went wrong!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Successfully authenticated with Google!");
+        setAuthUser(data);
+      } else {
+        toast.error(data.error || "Google authentication failed.");
+      }
+    } catch (error) {
+      toast.error("Something went wrong with Google Login!");
     }
   };
 
@@ -106,6 +132,21 @@ function AuthPage() {
             {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
           </button>
         </form>
+
+        <div className="mt-6 flex items-center justify-center space-x-4">
+          <div className="h-px bg-base-content/10 flex-1"></div>
+          <span className="text-sm text-base-content/60">OR</span>
+          <div className="h-px bg-base-content/10 flex-1"></div>
+        </div>
+
+        <div className="flex justify-center mt-6">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => {
+              toast.error("Google Login Failed");
+            }}
+          />
+        </div>
 
         <div className="mt-8 text-center text-sm text-base-content/60">
           {isLogin ? "Don't have an account? " : "Already have an account? "}

@@ -143,10 +143,10 @@ function Sidebar() {
                         <LogOut className="size-5" />
                     </button>
                     {!isCollapsed && (
-                        <div className="flex flex-col whitespace-nowrap overflow-hidden">
+                        <Link to="/profile" className="flex flex-col whitespace-nowrap overflow-hidden hover:bg-base-content/5 p-1 -ml-1 rounded transition-colors w-full cursor-pointer">
                             <span className="text-xs font-medium text-base-content truncate">{authUser?.name || "My Account"}</span>
-                            <span className="text-[10px] text-base-content/50 truncate">Manage Profile</span>
-                        </div>
+                            <span className="text-[10px] text-base-content/50 truncate hover:text-primary transition-colors">Manage Profile</span>
+                        </Link>
                     )}
                 </div>
             </div>

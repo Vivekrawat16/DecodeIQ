@@ -1,7 +1,11 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import { ENV } from "../lib/env.js";
+
+const client = new OAuth2Client(ENV.GOOGLE_CLIENT_ID);
+
 
 const generateToken = (userId, res) => {
   const token = jwt.sign({ userId }, ENV.JWT_SECRET || "fallback_secret", {
@@ -51,6 +55,11 @@ export const signup = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         profileImage: newUser.profileImage,
+        title: newUser.title,
+        bio: newUser.bio,
+        github: newUser.github,
+        linkedin: newUser.linkedin,
+        skills: newUser.skills
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
@@ -77,6 +86,11 @@ export const login = async (req, res) => {
       name: user.name,
       email: user.email,
       profileImage: user.profileImage,
+      title: user.title,
+      bio: user.bio,
+      github: user.github,
+      linkedin: user.linkedin,
+      skills: user.skills
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
@@ -99,6 +113,93 @@ export const checkAuth = (req, res) => {
     res.status(200).json(req.user);
   } catch (error) {
     console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: ENV.GOOGLE_CLIENT_ID,
+    });
+    const { name, email, picture } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      generateToken(user._id, res);
+      res.status(200).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profileImage: user.profileImage,
+        title: user.title,
+        bio: user.bio,
+        github: user.github,
+        linkedin: user.linkedin,
+        skills: user.skills
+      });
+    } else {
+      const newUser = new User({
+        name,
+        email,
+        profileImage: picture,
+        authProvider: 'google',
+      });
+      await newUser.save();
+      generateToken(newUser._id, res);
+      res.status(201).json({
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        profileImage: newUser.profileImage,
+        title: newUser.title,
+        bio: newUser.bio,
+        github: newUser.github,
+        linkedin: newUser.linkedin,
+        skills: newUser.skills
+      });
+    }
+  } catch (error) {
+    console.error("Error in google auth controller", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, title, bio, github, linkedin, skills } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (name) user.name = name;
+    if (title !== undefined) user.title = title;
+    if (bio !== undefined) user.bio = bio;
+    if (github !== undefined) user.github = github;
+    if (linkedin !== undefined) user.linkedin = linkedin;
+    if (skills !== undefined) user.skills = skills;
+
+    await user.save();
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage,
+      title: user.title,
+      bio: user.bio,
+      github: user.github,
+      linkedin: user.linkedin,
+      skills: user.skills
+    });
+  } catch (error) {
+    console.error("Error in update profile controller", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
